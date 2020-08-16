@@ -5,6 +5,7 @@ import db from '../api/lowdb.js';
 const commands = [
     {
         name: 'createroles',
+        desc: 'Finds existing roles for each subject and creates roles if they don\'t exist. Requires the Manage Roles permission.',
         elegibility: {
             type: 'hasPerm',
             value: 'MANAGE_ROLES'
@@ -13,7 +14,7 @@ const commands = [
             let subjects = (await primeTimeTable()).subjects;
             let existingRoles = db.get(message.guild.id + '.roles').value();
 
-            let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar'];
+            let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting'];
             let coloredSubjectPrefix = 'Advisory';
 
             let newRoles = [];
@@ -43,6 +44,7 @@ const commands = [
     },
     {
         name: 'deleteroles',
+        desc: 'Deletes all subject roles. Requires the Manage Roles permission.',
         elegibility: {
             type: 'hasPerm',
             value: 'MANAGE_ROLES'
@@ -63,9 +65,11 @@ const commands = [
     },
     {
         name: 'getroles',
+        desc: 'Gives subject roles to whoever\'s calling it.',
         exec: async function (message) {
             let students = (await primeTimeTable()).classes;
             let possibleStudents = students.filter(s => {
+                // valid name patterns: First Last, FirstLast, FirstL, FLast
                 let first = s.name.toLowerCase().split(' ')[0];
                 let last = s.name.toLowerCase().split(' ')[1];
                 let username = (message.author.nickname || message.author.user.username).toLowerCase();
@@ -76,7 +80,6 @@ const commands = [
                 if (username === first + last.charAt(0)) return true;
                 if (username === first.charAt(0) + last) return true;
                 return false;
-                // name patterns: First Last, FirstLast, FirstL, FLast
             });
 
             let student;
@@ -118,4 +121,4 @@ const commands = [
     }
 ];
 
-export default new CommandLayer(commands);
+export default new CommandLayer(commands, 'roles');

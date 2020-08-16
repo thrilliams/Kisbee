@@ -1,8 +1,9 @@
 import client from './index.js';
 
 export default class CommandLayer {
-    constructor(commands) {
+    constructor(commands, name = null) {
         this.commands = commands;
+        this.name = name;
     }
 
     eligible(elegibility, author) {
@@ -33,7 +34,7 @@ export default class CommandLayer {
     handleCommand(message) {
         for (let command of this.commands) {
             if (message.content.startsWith(command.name)) {
-                message.content = message.content.trim().split();
+                message.content = message.content.trim().split(' ').slice(1);
                 if (this.eligible(command.elegibility, message.author)) {
                     command.exec.call(this, message, message.content, client);
                 } else {
@@ -58,5 +59,9 @@ export default class CommandLayer {
 
             client.addListener('message', receiveMessage);
         });
+    }
+
+    generateHelp() {
+        return this.commands.map(e => `\`${e.name}\` - ${e.desc}`).join('\n');
     }
 }
