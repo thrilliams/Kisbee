@@ -16,6 +16,13 @@ const commands = [
                 message.channel.send(this.layers.map(layer => layer.generateHelp()).join('\n'));
             }
         }
+    },
+    {
+        name: 'whoami',
+        desc: 'Returns your discord ID.',
+        exec: function (message) {
+            message.reply(message.author.user.id);
+        }
     }
 ]
 
