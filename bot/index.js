@@ -1,12 +1,14 @@
 import Discord from 'discord.js';
+import secret from '../secret.js';
+import CoreLayer from './coreLayer.js';
 import roleLayer from './roleLayer.js';
 import channelLayer from './channelLayer.js';
-import secret from '../secret.js';
 
 const client = new Discord.Client();
 const prefix = '-'; // TODO: Change this
 
 const commandLayers = [ roleLayer, channelLayer ];
+commandLayers.unshift(new CoreLayer(commandLayers));
 
 client.on('ready', () => {
     console.log(`Logged in as ${client.user.tag}!`);
@@ -26,6 +28,6 @@ client.on('message', async message => {
 
 client.on('rateLimit', console.log);
 
-client.login(secret.client_token);
+client.login(secret.client_tokens[secret.production ? 'production' : 'development']);
 
 export default client;
