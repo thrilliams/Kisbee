@@ -1,6 +1,5 @@
-const { Client, SQLiteProvider } = require('discord.js-commando');
-const { open } = require('sqlite');
-const { Database } = require('sqlite3');
+const { Client } = require('discord.js-commando');
+const LowDBProvider = require('./api/LowDBProvider.js');
 const path = require('path');
 const secret = require('./secret.json');
 
@@ -15,10 +14,7 @@ client
     })
     .on('rateLimit', console.log);
 
-client.setProvider(open({
-    filename: path.join(__dirname, 'settings.db'),
-    driver: Database
-}).then(db => new SQLiteProvider(db))).catch(console.error);
+client.setProvider(new LowDBProvider(path.join(process.env.PWD, 'db.json'))).catch(console.error);
 
 client.registry
     .registerGroups([
