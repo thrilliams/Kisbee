@@ -1,3 +1,5 @@
 **/.DS_Store
 *.json
 node_modules
+*.db
+*.sqlite3
