@@ -1,6 +1,6 @@
-import axios from 'axios';
-import axiosCacheAdapter from 'axios-cache-adapter';
-import secret from '../secret.js';
+const axios = require('axios');
+const axiosCacheAdapter = require('axios-cache-adapter');
+const secret = require('../secret.json');
 
 const cache = axiosCacheAdapter.setupCache({ maxAge: 15 * 60 * 1000 }); // fifteen minute cache duration
 const api = axios.create({ adapter: cache.adapter });
@@ -61,7 +61,7 @@ function addSubjects(students, activities, subjects) {
     });
 }
 
-export default async function primeTimeTable(url = secret.api_url) {
+module.exports = async function primeTimeTable(url = secret.api_url) {
     let res = await api({ url: url, method: 'GET' });
 
     let data = res.data;
