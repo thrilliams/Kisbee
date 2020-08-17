@@ -61,10 +61,12 @@ function addSubjects(students, activities, subjects) {
     });
 }
 
-module.exports = async function primeTimeTable(url = secret.api_url) {
-    let res = await api({ url: url, method: 'GET' });
+module.exports = async function primeTimeTable(urls = secret.api_urls) {
+    let responses = await Promise.all(urls.map(url => api({ url: url, method: 'GET' })));
+    responses = responses.map(res => res.data);
 
-    let data = res.data;
+    let data = responses[0]; // TODO: Create merge function so middle school can play too
+
     data.classes = addSubjects(data.classes, data.activities, data.subjects);
 
     // processed students now have an attribute "subjects" which is pretty self-explanatory

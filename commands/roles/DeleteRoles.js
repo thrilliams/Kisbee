@@ -1,6 +1,6 @@
 const { Command } = require('discord.js-commando');
 
-module.exports = class CreateRoles extends Command {
+module.exports = class DeleteRoles extends Command {
     constructor(client) {
         super(client, {
             name: 'deleteroles',
