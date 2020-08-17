@@ -1,4 +1,5 @@
 const { Command } = require('discord.js-commando');
+const { APIMessage } = require('discord.js');
 
 module.exports = class ListChannels extends Command {
     constructor(client) {
@@ -34,12 +35,19 @@ module.exports = class ListChannels extends Command {
     }
     
 	async run(msg, args) {
-        msg.channel.send(
-            `Channels for \`${args.server.name}\` (${args.server.id})\n\n` + 
+        //#Source https://bit.ly/2neWfJ2 
+        const chunk = (arr, size) =>
+            Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+                arr.slice(i * size, i * size + size)
+            );
+        let message = chunk(
             [...args.server.channels.cache.values()]
                 .filter(c => c.type !== 'category')
-                .map(c => `\`${(c.type === 'text' ? '#' : '') + c.name}\` (${c.id}) - ${c.type}`)
-                .join('\n')
+                .map(c => `\`${(c.type === 'text' ? '#' : '') + c.name}\` (${c.id}) - ${c.type}`),
+            40
         );
+        message[0].unshift(`Channels for \`${args.server.name}\` (${args.server.id})\n\n`);
+        message = message.map(e => e.join('\n'));
+        message.forEach(m => msg.channel.send(m));
 	}
 }
