@@ -5,7 +5,7 @@ module.exports = class ListChannels extends Command {
         super(client, {
             name: 'listchannels',
             aliases: [ 'ls', 'list' ],
-            group: 'misc',
+            group: 'channels',
             memberName: 'listchannels',
             description: 'Lists each channel in a server.',
             args: [{

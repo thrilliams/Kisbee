@@ -46,7 +46,6 @@ module.exports = class CreateChannels extends Command {
 
         for (let subject of subjects) {
             let channel = await msg.guild.channels.create(subject.name, {
-                parent: categoryId,
                 permissionOverwrites: [
                     { id: msg.guild.roles.everyone,
                     deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
@@ -56,7 +55,7 @@ module.exports = class CreateChannels extends Command {
                     allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
                 ]
             });
-            msg.guild.settings.set('subjectChannel.' + subject.id, channel.id);
+            msg.guild.settings.set('subjectChannels.' + subject.id, channel.id);
         }
     }
 }
