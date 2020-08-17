@@ -10,8 +10,8 @@ const yts = require('yt-search');
 module.exports = class KASearch extends Command {
     constructor(client) {
         super(client, {
-            name: 'kahelp',
-            aliases: [ 'ka' ],
+            name: 'kasearch',
+            aliases: [ 'ka', 'kahelp' ],
             group: 'misc',
             memberName: 'kahelp',
             description: 'Get help on Khan Academy.',
@@ -41,4 +41,4 @@ module.exports = class KASearch extends Command {
             }
         });
 	}
-};
+}
