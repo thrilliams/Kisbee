@@ -12,8 +12,6 @@
     "discord.js": "^12.3.1",
     "discord.js-commando": "github:discordjs/commando#c5f4b209e89c648cb67007684468b9c51f4aa502",
     "lowdb": "^1.0.0",
-    "sqlite": "^4.0.14",
-    "sqlite3": "^5.0.0",
     "yt-search": "^2.1.8"
   }
 }
