@@ -1,4 +1,4 @@
 **/.DS_Store
 db.json
 node_modules
-secret.js
+secret.json
