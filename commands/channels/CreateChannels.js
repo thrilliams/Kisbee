@@ -18,12 +18,6 @@ module.exports = class CreateChannels extends Command {
     }
 
     async run(msg, args) {
-        let categoryId = msg.guild.settings.get('subjectChannel');
-        if (categoryId === undefined) {
-            categoryId = (await msg.guild.channels.create('Subjects', { type: 'category' })).id;
-            msg.guild.settings.set('subjectChannel', categoryId);
-        }
-
         let subjects = (await primeTimeTable()).subjects;
         let roles = msg.guild.settings.get('subjectRoles');
         let channels = msg.guild.settings.get('subjectChannels');
