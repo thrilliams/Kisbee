@@ -31,24 +31,34 @@ module.exports = class CreateChannels extends Command {
             .map(subject => ({ ...subject, name: subject.name.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g,'') }))
             .map(subject => ({ ...subject, name: subject.name.split(' ').map(e => e.trim()).filter(e => e !== '').join('-') }));
         
-        for (let subject of subjects.filter(subject => msg.guild.channels.cache.find(channel => channel.name === subject.name) !== undefined)) {
+        for (let subject of subjects.filter(subject => msg.guild.channels.cache.find(channel => channel.name.toLowerCase() === subject.name) !== undefined)) {
             console.log(`#${subject.name} already exists, adding to DB.`);
             msg.guild.settings.set('subjectChannels.' + subject.id, msg.guild.channels.cache.find(channel => channel.name === subject.name).id);
+            let perms = [
+                { id: msg.guild.roles.everyone,
+                    deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
+                { id: msg.guild.settings.get('subjectRoles.' + subject.id),
+                    allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+            ];
+            let helper = { id: msg.guild.roles.cache.find(role => role.name.toLowerCase() === 'helper'),
+            allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+            if (helper.id !== undefined) perms.push(helper);
+            let channel = await msg.guild.channels.create(subject.name, { permissionOverwrites: perms });
         }
 
-        subjects = subjects.filter(subject => msg.guild.channels.cache.find(channel => channel.name === subject.name) === undefined)
+        subjects = subjects.filter(subject => msg.guild.channels.cache.find(channel => channel.name.toLowerCase() === subject.name) === undefined)
 
         for (let subject of subjects) {
-            let channel = await msg.guild.channels.create(subject.name, {
-                permissionOverwrites: [
-                    { id: msg.guild.roles.everyone,
+            let perms = [
+                { id: msg.guild.roles.everyone,
                     deny: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
-                    { id: msg.guild.settings.get('subjectRoles.' + subject.id),
-                    allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] },
-                    { id: msg.guild.roles.cache.find(role => role.name === 'Helper'),
+                { id: msg.guild.settings.get('subjectRoles.' + subject.id),
                     allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
-                ]
-            });
+            ];
+            let helper = { id: msg.guild.roles.cache.find(role => role.name.toLowerCase() === 'helper'),
+            allow: ['VIEW_CHANNEL', 'SEND_MESSAGES'] }
+            if (helper.id !== undefined) perms.push(helper);
+            let channel = await msg.guild.channels.create(subject.name, { permissionOverwrites: perms });
             msg.guild.settings.set('subjectChannels.' + subject.id, channel.id);
         }
     }
