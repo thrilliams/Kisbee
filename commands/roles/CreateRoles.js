@@ -7,7 +7,7 @@ module.exports = class CreateRoles extends Command {
             name: 'createroles',
             group: 'roles',
             memberName: 'create',
-            description: 'Finds existing roles for each subject and creates roles if they don\'t exist. Requires the Manage Roles permission.',
+            description: 'Finds existing roles for each subject and creates roles if they don\'t exist. Requires the Manage Roles permission. Use sparingly; repeated uses of this command have the potential to get Kisbee ratelimited.',
             guildOnly: true,
             userPermissions: [ 'MANAGE_ROLES' ],
             throttling: {
@@ -21,7 +21,7 @@ module.exports = class CreateRoles extends Command {
         let subjects = (await primeTimeTable()).subjects;
         let existingRoles = msg.guild.settings.get('subjectRoles');
         
-        let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting'];
+        let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting', 'Independent Study', 'Senior Seminar'];
         let coloredSubjectPrefix = 'Advisory';
 
         let newRoles = [];
@@ -42,8 +42,8 @@ module.exports = class CreateRoles extends Command {
                 } else {
                     let data = { name: role.name }
                     if (role.name.startsWith(coloredSubjectPrefix)) data.color = role.color;
-                    msg.guild.roles.create({ data: data })
-                        .then(finishedRole => msg.guild.settings.set('subjectRoles.' + role.id, finishedRole.id));
+                    let finishedRole = await msg.guild.roles.create({ data: data });
+                    msg.guild.settings.set('subjectRoles.' + role.id, finishedRole.id);
                 }
             }
         }
