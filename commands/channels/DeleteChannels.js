@@ -1,5 +1,4 @@
 const { Command } = require('discord.js-commando');
-const primeTimeTable = require('../../api/primeTimeTable.js');
 
 module.exports = class DeleteChannels extends Command {
     constructor(client) {
@@ -17,17 +16,18 @@ module.exports = class DeleteChannels extends Command {
         let channels = msg.guild.settings.get('subjectChannels');
         
         if (channels === undefined) return;
-
-        for (let channel in channels) {
-            channel = await msg.guild.channels.resolve(channel);
-            await channel.delete();
-            msg.guild.settings.remove('subjectChannel.' + subject.id);
+        for (let channel of Object.keys(channels)) {
+            channel = await msg.guild.channels.resolve(channels[channel]);
+            if (channel) await channel.delete();
+            for (let key of Object.keys(channels)) {
+                if (channels[key] === channel.id) msg.guild.settings.remove('subjectChannels.' + key);
+            }
         }
 
         let categoryId = msg.guild.settings.get('subjectChannel');
         if (categoryId !== undefined) {
             let channel = await msg.guild.channels.resolve(categoryId);
-            await channel.delete();
+            if (channel) await channel.delete();
             msg.guild.settings.remove('subjectChannel');
         }
     }
