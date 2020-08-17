@@ -44,7 +44,7 @@ module.exports = class CreateRoles extends Command {
 
         subjects = subjects.filter(subject => msg.guild.channels.cache.find(channel => channel.name === subject.name) === undefined)
 
-        for (let subject of subjects.slice(0, 3)) {
+        for (let subject of subjects) {
             let channel = await msg.guild.channels.create(subject.name, {
                 parent: categoryId,
                 permissionOverwrites: [
