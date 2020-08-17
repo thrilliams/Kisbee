@@ -19,7 +19,8 @@ client.setProvider(new LowDBProvider(path.join(process.env.PWD, 'db.json'))).cat
 client.registry
     .registerGroups([
         ['roles', 'Role management'],
-        ['channels', 'Channel management']
+        ['channels', 'Channel management'],
+        ['misc', 'Miscellaneous']
     ])
     .registerDefaults()
     .registerCommandsIn(path.join(__dirname, 'commands'));

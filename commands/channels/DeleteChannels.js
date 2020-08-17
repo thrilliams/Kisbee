@@ -1,7 +1,7 @@
 const { Command } = require('discord.js-commando');
 const primeTimeTable = require('../../api/primeTimeTable.js');
 
-module.exports = class CreateRoles extends Command {
+module.exports = class DeleteChannels extends Command {
     constructor(client) {
         super(client, {
             name: 'deletechannels',
