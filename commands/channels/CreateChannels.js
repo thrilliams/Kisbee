@@ -1,5 +1,4 @@
 const { Command } = require('discord.js-commando');
-const primeTimeTable = require('../../api/primeTimeTable.js');
 
 module.exports = class CreateChannels extends Command {
     constructor(client) {
@@ -37,17 +36,11 @@ module.exports = class CreateChannels extends Command {
             .map(subject => ({ ...subject, name: subject.name.split(' ').map(e => e.trim()).filter(e => e !== '').join('-') }));
 
 
-        let perms = [
-            {
-                id: msg.guild.roles.everyone,
-                deny: ['VIEW_CHANNEL', 'SEND_MESSAGES']
-            },
-            {
-                id: msg.guild.settings.get('subjectRoles.' + subject.roleId),
-                allow: ['VIEW_CHANNEL', 'SEND_MESSAGES']
-            }
-        ];
-        
+        let perms = [{
+            id: msg.guild.roles.everyone,
+            deny: ['VIEW_CHANNEL', 'SEND_MESSAGES']
+        }];
+
         let helperRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() === 'helper');
         if (helperRole !== undefined) perms.push({
             id: helperRole.id,
@@ -56,12 +49,16 @@ module.exports = class CreateChannels extends Command {
 
         for (let subject of subjects) {
             let channel = msg.guild.channels.cache.find(c => c.name.toLowerCase() === subject.name);
+            let tPerms = [ ...perms, {
+                id: msg.guild.settings.get('subjectRoles.' + subject.roleId),
+                allow: ['VIEW_CHANNEL', 'SEND_MESSAGES']
+            }];
 
             if (channel !== undefined) {
                 console.log(`#${subject.name} already exists, updating perms and adding to DB.`);
-                await channel.overwritePermissions(perms);
+                await channel.overwritePermissions(tPerms);
             } else {
-                channel = await msg.guild.channels.create(subject.name, { permissionOverwrites: perms });
+                channel = await msg.guild.channels.create(subject.name, { permissionOverwrites: tPerms });
             }
 
             msg.guild.settings.set('subjectChannels.' + subject.roleId, channel.id);
