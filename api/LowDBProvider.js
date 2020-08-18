@@ -6,7 +6,10 @@ const FileSync = require('lowdb/adapters/FileSync.js');
 module.exports = class LowDBProvider extends SettingProvider {
     constructor(path) {
         super();
-        this.db = low(new FileSync(path));
+        this.db = low(new FileSync(path, {
+            serialize: state => JSON.stringify(state),
+            deserialize: string => JSON.parse(string)
+        }));
     }
 
     async clear(guild) {
