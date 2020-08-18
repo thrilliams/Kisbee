@@ -1,4 +1,4 @@
-const { Command, ArgumentCollector } = require('discord.js-commando');
+const { Command } = require('discord.js-commando');
 
 module.exports = class ShadowClone extends Command {
     constructor(client) {
@@ -51,7 +51,6 @@ module.exports = class ShadowClone extends Command {
                 return msg.reply('Shadow clone jutsu finished.');
             }
             
-
             if (msg.channel.id === t.id) {
                 msg.content = `\`${msg.guild.member(msg.author).nickname || msg.author.username}\`: ` + msg.content;
             }
