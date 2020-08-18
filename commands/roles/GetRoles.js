@@ -13,6 +13,7 @@ module.exports = class GetRoles extends Command {
     }
 
     async run(msg, args) {
+        // TODO: Refactor
         let author = msg.guild.member(msg.author);
         let students = (await primeTimeTable()).classes;
 

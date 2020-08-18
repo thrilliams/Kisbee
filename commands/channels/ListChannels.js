@@ -35,11 +35,13 @@ module.exports = class ListChannels extends Command {
     }
     
 	async run(msg, args) {
-        //#Source https://bit.ly/2neWfJ2 
-        const chunk = (arr, size) =>
-            Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
-                arr.slice(i * size, i * size + size)
-            );
+        // TODO: Refactor
+
+        // Array chunking. Source: https://github.com/30-seconds/30-seconds-of-code
+        const chunk = (arr, size) => Array.from({ length: Math.ceil(arr.length / size) }, (v, i) =>
+            arr.slice(i * size, i * size + size)
+        );
+
         let message = chunk(
             [...args.server.channels.cache.values()]
                 .filter(c => c.type !== 'category')
