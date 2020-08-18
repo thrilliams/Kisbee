@@ -18,35 +18,28 @@ module.exports = class CreateRoles extends Command {
     }
 
     async run(msg, args) {
-        // TODO: Refactor
         let subjects = (await primeTimeTable()).subjects;
         let existingRoles = msg.guild.settings.get('subjectRoles');
         
-        let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting', 'Independent Study', 'Senior Seminar'];
+        let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting', 'Independent Study', 'Senior Seminar', 'College Counseling (IL7)'];
         let coloredSubjectPrefix = 'Advisory';
 
-        let newRoles = [];
-        if (existingRoles === undefined) {
-            newRoles.push(...subjects);
-        } else {
-            for (let subject of subjects) {
-                if (!(subject.id in existingRoles)) newRoles.push(subject);
-            }
-        }
+        subjects = subjects
+            .map(subject => ({ ...subject, name: subject.name.replace(/\([0-9]*\)/g, '').trim() }))
+            .filter(subject => !disallowedSubjectNames.includes(subject.name));
         
-        for (let role of newRoles) {
-            if (!disallowedSubjectNames.includes(role.name)) {
-                let possible = msg.guild.roles.cache.find(r => r.name === role.name)
-                if (possible !== undefined) {
-                    console.log(`${role.name} already exists in guild ${msg.guild.name}. Adding to DB.`)
-                    msg.guild.settings.set('subjectRoles.' + role.id, possible.id);
-                } else {
-                    let data = { name: role.name }
-                    if (role.name.startsWith(coloredSubjectPrefix)) data.color = role.color;
-                    let finishedRole = await msg.guild.roles.create({ data: data });
-                    msg.guild.settings.set('subjectRoles.' + role.id, finishedRole.id);
-                }
-            }
+        if (existingRoles !== undefined) subjects = subjects
+            .filter(subject => !(subject.id in existingRoles));
+        
+        for (let subject of subjects) {
+            let role = msg.guild.roles.cache.find(r => r.name === subject.name);
+            if (role === undefined) {
+                let data = { name: subject.name }
+                if (subject.name.startsWith(coloredSubjectPrefix)) data.color = subject.color;
+                role = await msg.guild.roles.create({ data: data });
+            } else console.log(`${role.name} already exists, adding to DB.`);
+
+            msg.guild.settings.set('subjectRoles.' + subject.id, role.id);
         }
     }
 }
