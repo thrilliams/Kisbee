@@ -11,6 +11,12 @@ const client = new Client({
 client
     .on('ready', () => {
         console.log(`Logged in as ${client.user.tag} (${client.user.id})`);
+        client.user.setPresence({
+            activity: {
+                name: client.commandPrefix + 'help',
+                type: 'WATCHING'
+            }
+        });
     })
     .on('rateLimit', console.log);
 
