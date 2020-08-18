@@ -56,7 +56,7 @@ module.exports = class CreateChannels extends Command {
 
             if (channel !== undefined) {
                 console.log(`#${subject.name} already exists, updating perms and adding to DB.`);
-                await channel.overwritePermissions(tPerms);
+                await channel.overwritePermissions([ ...tPerms, ...channel.permissionOverwrites ]);
             } else {
                 channel = await msg.guild.channels.create(subject.name, { permissionOverwrites: tPerms });
             }
