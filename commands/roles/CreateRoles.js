@@ -18,6 +18,7 @@ module.exports = class CreateRoles extends Command {
     }
 
     async run(msg, args) {
+        // TODO: Refactor
         let subjects = (await primeTimeTable()).subjects;
         let existingRoles = msg.guild.settings.get('subjectRoles');
         

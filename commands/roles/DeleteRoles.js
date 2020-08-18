@@ -13,6 +13,7 @@ module.exports = class DeleteRoles extends Command {
     }
 
     async run(msg, args) {
+        // TODO: Refactor
         let roles = msg.guild.settings.get('subjectRoles');
         if (roles === undefined) return;
         
