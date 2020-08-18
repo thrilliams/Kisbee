@@ -16,19 +16,10 @@ module.exports = class DeleteChannels extends Command {
         let channels = msg.guild.settings.get('subjectChannels');
         
         if (channels === undefined) return;
-        for (let channel of Object.keys(channels)) {
+        for (let channel in channels) {
             channel = await msg.guild.channels.resolve(channels[channel]);
-            if (channel) await channel.delete();
-            for (let key of Object.keys(channels)) {
-                if (channels[key] === channel.id) msg.guild.settings.remove('subjectChannels.' + key);
-            }
-        }
-
-        let categoryId = msg.guild.settings.get('subjectChannel');
-        if (categoryId !== undefined) {
-            let channel = await msg.guild.channels.resolve(categoryId);
-            if (channel) await channel.delete();
-            msg.guild.settings.remove('subjectChannel');
+            await msg.guild.settings.remove('subjectChannels.' + channels);
+            if (channel) channel.delete();
         }
     }
 }
