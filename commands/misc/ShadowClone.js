@@ -9,6 +9,7 @@ module.exports = class ShadowClone extends Command {
             memberName: 'shadowclone',
             description: 'Shadow clone jutsu!',
             guildOnly: true,
+            ownerOnly: true,
             hidden: true,
             args: [
                 {
