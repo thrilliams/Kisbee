@@ -9,6 +9,7 @@ module.exports = class SetLink extends Command {
             group: 'misc',
             memberName: 'setlink',
             description: 'Set helpful information.',
+            userPermissions: [ 'MANAGE_MESSAGES' ],
             args: [
                 {
                     key: 'name',
