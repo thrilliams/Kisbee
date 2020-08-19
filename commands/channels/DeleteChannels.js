@@ -14,12 +14,12 @@ module.exports = class DeleteChannels extends Command {
 
     async run(msg, args) {
         let channels = msg.guild.settings.get('subjectChannels');
-        
-        if (channels === undefined) return;
+        if (!channels) return;
+
         for (let channel in channels) {
             channel = await msg.guild.channels.resolve(channels[channel]);
             await msg.guild.settings.remove('subjectChannels.' + channels);
-            if (channel) channel.delete();
+            if (channel && !channel.deleted) channel.delete();
         }
     }
 }

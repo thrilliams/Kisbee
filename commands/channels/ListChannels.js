@@ -19,14 +19,14 @@ module.exports = class ListChannels extends Command {
                     if (typeof val === 'number') val += '';
                     if (typeof val !== 'string') return false;
                     let server = msg.command.client.guilds.cache.get(val);
-                    if (server === undefined)
+                    if (!server)
                         server = msg.command.client.guilds.cache.find(g => g.name === val);
-                    if (server === undefined) return 'Kisbee could not find a server with that name or ID.';
+                    if (!server) return 'Kisbee could not find a server with that name or ID.';
                     return true;
                 },
                 parse: function(val, msg, arg) {
                     let server = msg.command.client.guilds.cache.get(val);
-                    if (server === undefined)
+                    if (!server)
                         server = msg.command.client.guilds.cache.find(g => g.name === val);
                     return server;
                 }

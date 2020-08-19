@@ -18,9 +18,9 @@ module.exports = class ArchiveChannel extends Command {
     
 	async run(msg, args) {
         let archiveCategory = msg.guild.settings.get('archiveCategory');
-        if (archiveCategory === undefined)
+        if (!archiveCategory)
             archiveCategory = msg.guild.channels.cache.find(c => c.name === 'Archive');
-        if (archiveCategory === undefined)
+        if (!archiveCategory)
             archiveCategory = await msg.guild.channels.create('Archive', {
                 type: 'category',
                 permissionOverwrites: [{
