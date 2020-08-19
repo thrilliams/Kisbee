@@ -62,8 +62,8 @@ module.exports = class GetRoles extends Command {
         if (!roles)
             return msg.channel.send('No roles assigned. Contact a moderator.');
 
-        let newRoles = subject.subjects.filter(s => s.id in roles).map(s => roles[s.id])
+        let newRoles = student.subjects.filter(s => s.id in roles).map(s => roles[s.id])
         author.roles.add(newRoles);
-        msg.channel.send(`Successfully assigned ${newRoles.length} roles!`);
+        msg.channel.send(`Success! Assigned ${newRoles.length} roles.`);
     }
 }
