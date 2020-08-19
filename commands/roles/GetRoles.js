@@ -13,37 +13,42 @@ module.exports = class GetRoles extends Command {
     }
 
     async run(msg, args) {
-        // TODO: Refactor
+        msg.channel.send('Fetching student information, please wait...');
         let author = msg.guild.member(msg.author);
+        let roles = msg.guild.settings.get('subjectRoles');
         let students = (await primeTimeTable()).classes;
 
         let possibleStudents = students.filter(s => {
-            // valid name patterns: First Last, FirstLast, FirstL, FLast
             let first = s.name.toLowerCase().split(' ')[0];
             let last = s.name.toLowerCase().split(' ')[1];
             let username = (author.nickname || msg.author.username).toLowerCase();
-            if (username === first + ' ' + last) return true;
-            if (username === first + last) return true;
-            if (username === first + ' ' + last.charAt(0)) return true;
-            if (username === first.charAt(0) + ' ' + last) return true;
-            if (username === first + last.charAt(0)) return true;
-            if (username === first.charAt(0) + last) return true;
-            return false;
+            return [
+                `.*${first}.*`,
+                `.*${last}.*`,
+                `.*${first} *${last}.*`,
+                `.*${first.charAt(0)} *${last}.*`,
+                `.*${first} *${last.charAt(0)}.*`
+            ]
+                .map(pattern => new RegExp(pattern, 'gi'))
+                .some(pattern => pattern.test(username));
         });
 
         let student;
         if (possibleStudents.length !== 1) {
+            let prompt = `Kisbee cannot tell what your name is. Please reply with your first and last name.`;
+            let rules = msg.guild.channels.cache.find(c => c.name === 'rules');
+            if (rules !== undefined)
+                prompt += `\nAdditionally, double-check you aren't breaking rule #1 in ${rules}.\n*(This is an automated reminder, not a formal warning.)*`
             let collector = new ArgumentCollector(this.client, [{
                 key: 'name',
-                prompt: 'Kisbee cannot tell what your name is. Please reply with your first and last name.',
+                prompt: prompt,
                 type: 'string'
             }]);
     
             let result = await collector.obtain(msg);
-            if (result.cancelled) return msg.channel.send('Kisbee cannot find a student with that name. Check for typos and try again.');
-            let name = result.values.name.toLowerCase();
+            if (result.cancelled) return msg.channel.send('Cancelled.');
 
-            student = students.filter(s => s.name.toLowerCase() === name);
+            student = students.filter(s => s.name.toLowerCase() === result.values.name.toLowerCase());
             if (student.length < 1) {
                 return msg.channel.send('Kisbee cannot find a student with that name. Check for typos and try again.');
             } else {
@@ -54,18 +59,10 @@ module.exports = class GetRoles extends Command {
             msg.channel.send(`You look like ${student.name}.`);
         }
 
-        let roles = msg.guild.settings.get('subjectRoles');
-        let newRoles = [];
-        if (roles !== undefined) {
-            for (let subject of student.subjects) {
-                if (subject.id in roles) {
-                    newRoles.push(roles[subject.id]);
-                }
-            }
-        } else {
-            msg.channel.send('No roles assigned. Contact a moderator.');
-        }
+        if (roles === undefined)
+            return msg.channel.send('No roles assigned. Contact a moderator.');
 
+        let newRoles = subject.subjects.filter(s => s.id in roles).map(s => roles[s.id])
         author.roles.add(newRoles);
         msg.channel.send(`Successfully assigned ${newRoles.length} roles!`);
     }
