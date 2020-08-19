@@ -27,7 +27,7 @@ module.exports = class Link extends Command {
             msg.channel.send(embed);
         } else {
             let items = msg.guild.settings.get('links');
-            if (!items) return msg.channel.send('There are no items saved with Kisbee.');
+            if (!items || Object.keys(items).length === 0) return msg.channel.send('There are no items saved with Kisbee.');
             let embed = new MessageEmbed();
             for (let item in items) {
                 embed.addField(item.charAt(0).toUpperCase() + item.slice(1), items[item]);
