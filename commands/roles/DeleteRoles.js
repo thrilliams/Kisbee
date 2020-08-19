@@ -13,14 +13,16 @@ module.exports = class DeleteRoles extends Command {
     }
 
     async run(msg, args) {
+        msg.channel.send('Working...');
         let roles = msg.guild.settings.get('subjectRoles');
-        if (!roles) return;
+        if (!roles) return msg.reply('No roles exist to be deleted.');
         
         for (let roleId in roles) {
             let role = msg.guild.roles.resolve(roles[roleId]);
-            if (role && !role.deleted) role.delete();
+            if (role && !role.deleted) await role.delete();
         }
 
+        msg.reply(`Success! Deleted a total of ${Object.keys(roles).length} roles.`);
         msg.guild.settings.remove('subjectRoles');
     }
 }

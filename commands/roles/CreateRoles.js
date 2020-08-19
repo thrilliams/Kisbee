@@ -18,20 +18,21 @@ module.exports = class CreateRoles extends Command {
     }
 
     async run(msg, args) {
-        let subjects = (await primeTimeTable()).subjects;
+        msg.channel.send('Working...');
+        let roles = (await primeTimeTable()).subjects;
         let existingRoles = msg.guild.settings.get('subjectRoles');
         
-        let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting', 'Independent Study', 'Senior Seminar', 'College Counseling (IL7)'];
+        let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting', 'Independent Study', 'Senior Seminar', 'College Counseling (IL7)', 'Advisory (IL6)'];
         let coloredSubjectPrefix = 'Advisory';
 
-        subjects = subjects
-            .map(subject => ({ ...subject, name: subject.name.replace(/\([0-9]*\)/g, '').trim() }))
-            .filter(subject => !disallowedSubjectNames.includes(subject.name));
+        roles = roles
+            .map(role => ({ ...role, name: role.name.replace(/\([0-9]*\)/g, '').trim() }))
+            .filter(role => !disallowedSubjectNames.includes(role.name));
         
-        if (existingRoles) subjects = subjects
-            .filter(subject => !(subject.id in existingRoles));
+        if (existingRoles) roles = roles
+            .filter(role => !(role.id in existingRoles));
         
-        for (let subject of subjects) {
+        for (let subject of roles) {
             let role = msg.guild.roles.cache.find(r => r.name === subject.name);
             if (!role) {
                 let data = { name: subject.name }
@@ -41,5 +42,7 @@ module.exports = class CreateRoles extends Command {
 
             msg.guild.settings.set('subjectRoles.' + subject.id, role.id);
         }
+
+        msg.reply(`Success! Created/converted a total of ${roles.length} roles.`);
     }
 }

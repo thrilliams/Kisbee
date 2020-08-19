@@ -17,6 +17,7 @@ module.exports = class CreateChannels extends Command {
     }
 
     async run(msg, args) {
+        msg.channel.send('Working...');
         let roles = msg.guild.settings.get('subjectRoles');
         let channels = msg.guild.settings.get('subjectChannels');
 
@@ -63,5 +64,7 @@ module.exports = class CreateChannels extends Command {
 
             msg.guild.settings.set('subjectChannels.' + subject.roleId, channel.id);
         }
+
+        msg.reply(`Success! Created/converted a total of ${subjects.length} channels.`);
     }
 }

@@ -13,13 +13,16 @@ module.exports = class DeleteChannels extends Command {
     }
 
     async run(msg, args) {
+        msg.channel.send('Working...');
         let channels = msg.guild.settings.get('subjectChannels');
-        if (!channels) return;
+        if (!channels) return msg.reply('No channels exist to be deleted.');
 
         for (let channel in channels) {
             channel = await msg.guild.channels.resolve(channels[channel]);
-            await msg.guild.settings.remove('subjectChannels.' + channels);
-            if (channel && !channel.deleted) channel.delete();
+            if (channel && !channel.deleted) await channel.delete();
         }
+
+        msg.reply(`Success! Deleted a total of ${Object.keys(channels).length} channels.`);
+        msg.guild.settings.remove('subjectChannels');
     }
 }
