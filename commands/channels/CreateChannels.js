@@ -20,14 +20,14 @@ module.exports = class CreateChannels extends Command {
         let roles = msg.guild.settings.get('subjectRoles');
         let channels = msg.guild.settings.get('subjectChannels');
 
-        if (roles === undefined) return msg.reply('Double-check you ran `createroles` successfully.');
+        if (!roles) return msg.reply('Double-check you ran `createroles` successfully.');
 
         let subjects = [];
         for (let role in roles) {
             subjects.push({ ...msg.guild.roles.resolve(roles[role]), roleId: role });
         }
         
-        if (channels !== undefined)
+        if (channels)
             subjects = subjects.filter(subject => !(subject.id in Object.values(channels)));
         
         subjects = subjects
@@ -42,7 +42,7 @@ module.exports = class CreateChannels extends Command {
         }];
 
         let helperRole = msg.guild.roles.cache.find(role => role.name.toLowerCase() === 'helper');
-        if (helperRole !== undefined) perms.push({
+        if (helperRole) perms.push({
             id: helperRole.id,
             allow: ['VIEW_CHANNEL', 'SEND_MESSAGES']
         });
@@ -54,7 +54,7 @@ module.exports = class CreateChannels extends Command {
                 allow: ['VIEW_CHANNEL', 'SEND_MESSAGES']
             }];
 
-            if (channel !== undefined) {
+            if (channel) {
                 console.log(`#${subject.name} already exists, updating perms and adding to DB.`);
                 await channel.overwritePermissions([ ...tPerms, ...channel.permissionOverwrites.array() ]);
             } else {

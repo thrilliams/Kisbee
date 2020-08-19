@@ -37,7 +37,7 @@ module.exports = class GetRoles extends Command {
         if (possibleStudents.length !== 1) {
             let prompt = `Kisbee cannot tell what your name is. Please reply with your first and last name.`;
             let rules = msg.guild.channels.cache.find(c => c.name === 'rules');
-            if (rules !== undefined)
+            if (rules)
                 prompt += `\nAdditionally, double-check you aren't breaking rule #1 in ${rules}.\n*(This is an automated reminder, not a formal warning.)*`
             let collector = new ArgumentCollector(this.client, [{
                 key: 'name',
@@ -59,7 +59,7 @@ module.exports = class GetRoles extends Command {
             msg.channel.send(`You look like ${student.name}.`);
         }
 
-        if (roles === undefined)
+        if (!roles)
             return msg.channel.send('No roles assigned. Contact a moderator.');
 
         let newRoles = subject.subjects.filter(s => s.id in roles).map(s => roles[s.id])

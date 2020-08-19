@@ -26,7 +26,7 @@ module.exports = class LowDBProvider extends SettingProvider {
         if (typeof guild === 'string') throw guild;
         guild = guild.id;
         let val = this.db.get(`${this.id}.${guild}.${key}`).value();
-        if (val === undefined && defVal !== undefined)
+        if (!val && defVal)
             this.db.set(`${this.id}.${guild}.${key}`, defVal).write();
         return val;
     }

@@ -14,11 +14,11 @@ module.exports = class DeleteRoles extends Command {
 
     async run(msg, args) {
         let roles = msg.guild.settings.get('subjectRoles');
-        if (roles === undefined) return;
+        if (!roles) return;
         
         for (let roleId in roles) {
             let role = msg.guild.roles.resolve(roles[roleId]);
-            if (role !== undefined) role.delete();
+            if (role && !role.deleted) role.delete();
         }
 
         msg.guild.settings.remove('subjectRoles');

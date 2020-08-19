@@ -28,12 +28,12 @@ module.exports = class CreateRoles extends Command {
             .map(subject => ({ ...subject, name: subject.name.replace(/\([0-9]*\)/g, '').trim() }))
             .filter(subject => !disallowedSubjectNames.includes(subject.name));
         
-        if (existingRoles !== undefined) subjects = subjects
+        if (existingRoles) subjects = subjects
             .filter(subject => !(subject.id in existingRoles));
         
         for (let subject of subjects) {
             let role = msg.guild.roles.cache.find(r => r.name === subject.name);
-            if (role === undefined) {
+            if (!role) {
                 let data = { name: subject.name }
                 if (subject.name.startsWith(coloredSubjectPrefix)) data.color = subject.color;
                 role = await msg.guild.roles.create({ data: data });
