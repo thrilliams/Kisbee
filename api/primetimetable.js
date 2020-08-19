@@ -57,6 +57,9 @@ function addSubjects(students, activities, subjects) {
         }
         student.subjects = student.subjectIds.map(id => getById(subjects, id));
 
+        // The Ainsel clause
+        if (student.name === "Katarina Fallon") student.name = "Ainsel Fallon";
+
         return student;
     });
 }
