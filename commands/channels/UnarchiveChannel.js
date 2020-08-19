@@ -12,7 +12,8 @@ module.exports = class UnarchiveChannel extends Command {
                 key: 'channel',
                 prompt: 'Please specify a channel to be unarchived.',
                 type: 'channel'
-            }]
+            }],
+            userPermissions: [ 'MANAGE_CHANNELS' ]
         });
     }
     

@@ -13,7 +13,8 @@ module.exports = class SetLink extends Command {
                 key: 'name',
                 type: 'string',
                 prompt: 'Please specify the name of the item you want to exile.'
-            }]
+            }],
+            userPermissions: [ 'MANAGE_MESSAGES' ]
         });
     }
     

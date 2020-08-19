@@ -12,7 +12,8 @@ module.exports = class ArchiveChannel extends Command {
                 key: 'channel',
                 prompt: 'Please specify a channel to be archived.',
                 type: 'channel'
-            }]
+            }],
+            userPermissions: [ 'MANAGE_CHANNELS' ]
         });
     }
     

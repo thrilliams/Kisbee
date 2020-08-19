@@ -6,7 +6,8 @@ module.exports = class CleanPins extends Command {
             name: 'cleanpins',
             group: 'channels',
             memberName: 'cleanpins',
-            description: 'Remove and display each pinned Zoom url.'
+            description: 'Remove and display each pinned Zoom url.',
+            userPermissions: [ 'MANAGE_CHANNELS', 'MANAGE_MESSAGES' ]
         });
     }
     
