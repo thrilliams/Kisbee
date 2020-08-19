@@ -25,6 +25,7 @@ module.exports = class SetLink extends Command {
     }
     
 	async run(msg, args) {
+        msg.suppressEmbeds();
         msg.guild.settings.set('links.' + args.name.toLowerCase(), args.value);
         msg.channel.send(new MessageEmbed().addField(args.name, args.value));
 	}

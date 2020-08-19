@@ -19,20 +19,23 @@ module.exports = class Link extends Command {
     }
     
 	async run(msg, args) {
+        let embed = new MessageEmbed();
         if (args.name && args.name !== 'list') {
             let item = msg.guild.settings.get('links.' + args.name.toLowerCase(), args.value);
             if (!item) return msg.channel.send('Kisbee could not find an item with that name');
-            let embed = new MessageEmbed()
-                .addField(args.name.charAt(0).toUpperCase() + args.name.slice(1), item);
-            msg.channel.send(embed);
+            embed.addField(args.name.charAt(0).toUpperCase() + args.name.slice(1), item);
         } else {
             let items = msg.guild.settings.get('links');
             if (!items || Object.keys(items).length === 0) return msg.channel.send('There are no items saved with Kisbee.');
-            let embed = new MessageEmbed();
             for (let item in items) {
                 embed.addField(item.charAt(0).toUpperCase() + item.slice(1), items[item]);
             }
-            msg.channel.send(embed);
         }
+
+        let sent = await msg.channel.send(embed);
+        setTimeout(() => {
+            msg.delete();
+            sent.delete();
+        }, 30000);
 	}
 }
