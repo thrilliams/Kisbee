@@ -19,6 +19,13 @@ module.exports = class Alert extends Command {
                     type: 'string',
                     prompt: 'Please specify a unit of time. (Valid types are seconds, minutes, hours, and days.)',
                     default: 'minutes'
+                },
+                {
+                    key: 'reason',
+                    type: 'string',
+                    prompt: 'Please specify a reason for your reminder',
+                    infinite: true,
+                    default: ''
                 }
             ]
         });
@@ -44,6 +51,7 @@ module.exports = class Alert extends Command {
         if (amount === args.amount) return msg.channel.send('Kisbee was unable to find a unit of time under that name. (Valid types are seconds, minutes, hours, and days.)');
         else msg.channel.send(`Reminder set for ${args.amount} ${type[2] + (args.amount !== 1 ? 's' : '')}.`);
 
-        setTimeout(() => msg.reply('become reminded.'), amount);
+        let reason = args.reason ? args.reason.join(' ') : undefined;
+        setTimeout(() => msg.author.send(reason ? reason : 'Become reminded.', { tts: true }), amount);
 	}
 }
