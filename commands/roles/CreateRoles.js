@@ -39,7 +39,7 @@ module.exports = class CreateRoles extends Command {
                 let data = { name: subject.name }
                 if (subject.name.startsWith(coloredSubjectPrefix)) data.color = subject.color;
                 role = await msg.guild.roles.create({ data: data });
-            } else console.log(`${role.name} already exists, adding to DB.`);
+            }
 
             msg.guild.settings.set('subjectRoles.' + subject.id, role.id);
         }
