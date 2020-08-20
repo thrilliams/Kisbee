@@ -2,7 +2,7 @@ const { MessageEmbed } = require('discord.js');
 const { Command } = require('discord.js-commando');
 const { disambiguation } = require('discord.js-commando/src/util.js');
 
-module.exports = class HelpCommand extends Command {
+module.exports = class Help extends Command {
     constructor(client) {
         super(client, {
             name: 'help',

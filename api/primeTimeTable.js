@@ -80,6 +80,5 @@ module.exports = async function primeTimeTable(urls = secret.api_urls) {
     data.classes = addSubjects(data.classes, data.activities, data.subjects);
 
     // processed students now have an attribute "subjects" which is pretty self-explanatory
-    // TODO: maybe process the rest of the fields?
     return data;
 }

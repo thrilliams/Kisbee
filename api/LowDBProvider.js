@@ -23,11 +23,14 @@ module.exports = class LowDBProvider extends SettingProvider {
     }
 
     get(guild, key, defVal) {
-        if (typeof guild === 'string') throw guild;
-        guild = guild.id;
-        let val = this.db.get(`${this.id}.${guild}.${key}`).value();
+        if (guild) {
+            if (typeof guild === 'string') throw guild;
+            guild = guild.id;
+        }
+        
+        let val = this.db.get(`${this.id}${guild ? '.' + guild : ''}${key ? '.' + key : ''}`).value();
         if (!val && defVal)
-            this.db.set(`${this.id}.${guild}.${key}`, defVal).write();
+            this.db.set(`${this.id}${guild ? '.' + guild : ''}${key ? '.' + key : ''}`, defVal).write();
         return val;
     }
 
@@ -37,17 +40,23 @@ module.exports = class LowDBProvider extends SettingProvider {
     }
 
     async remove(guild, key) {
-        if (typeof guild === 'string') throw guild;
-        guild = guild.id;
-        let val = this.db.get(`${this.id}.${guild}.${key}`).value();
-        this.db.unset(`${this.id}.${guild}.${key}`).write();
+        if (guild) {
+            if (typeof guild === 'string') throw guild;
+            guild = guild.id;
+        }
+
+        let val = this.db.get(`${this.id}${guild ? '.' + guild : ''}${key ? '.' + key : ''}`).value();
+        this.db.unset(`${this.id}${guild ? '.' + guild : ''}${key ? '.' + key : ''}`).write();
         return val;
     }
 
     async set(guild, key, val) {
-        if (typeof guild === 'string') throw guild;
-        guild = guild.id;
-        this.db.set(`${this.id}.${guild}.${key}`, val).write();
+        if (guild) {
+            if (typeof guild === 'string') throw guild;
+            guild = guild.id;
+        }
+
+        this.db.set(`${this.id}${guild ? '.' + guild : ''}${key ? '.' + key : ''}`, val).write();
         return val;
     }
 

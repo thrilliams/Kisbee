@@ -21,7 +21,6 @@ module.exports = class UnarchiveChannel extends Command {
 	async run(msg, args) {
         await args.channel.setParent(null);
         args.channel.overwritePermissions([]);
-        // TODO: Make this restore previous perms somehow
         
         let year = new Date().getFullYear() - 1;
         if (new Date().getMonth() >= 7 && new Date().getDate() >= 17) year++;
