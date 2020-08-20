@@ -9,6 +9,7 @@ module.exports = class SetLink extends Command {
             group: 'misc',
             memberName: 'setlink',
             description: 'Set helpful information.',
+            guildOnly: true,
             userPermissions: [ 'MANAGE_MESSAGES' ],
             args: [
                 {

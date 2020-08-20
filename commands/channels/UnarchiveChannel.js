@@ -8,6 +8,7 @@ module.exports = class UnarchiveChannel extends Command {
             group: 'channels',
             memberName: 'unarchive',
             description: 'Unarchives an archived channel.',
+            guildOnly: true,
             args: [{
                 key: 'channel',
                 prompt: 'Please specify a channel to be unarchived.',
