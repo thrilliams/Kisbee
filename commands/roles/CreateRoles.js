@@ -27,7 +27,7 @@ module.exports = class CreateRoles extends Command {
         let coloredSubjectPrefix = 'Advisory';
 
         roles = roles
-            .map(role => ({ ...role, name: role.name.replace(/\([0-9]*\)/g, '').trim() }))
+            .map(role => ({ ...role, name: role.name.replace(/\((sec(tion)? )?[0-9]*\)/g, '').trim() }))
             .filter(role => !disallowedSubjectNames.includes(role.name));
         
         if (existingRoles) roles = roles
