@@ -22,7 +22,7 @@ module.exports = class SetLink extends Command {
 	async run(msg, args) {
         let time = { timeout: 30000 };
         msg.guild.settings.remove('links.' + args.name);
-        msg.channel.send(`${args.name} removed.`).delete(time);
+        (await msg.channel.send(`${args.name} removed.`)).delete(time);
         msg.delete(time);
 	}
 }

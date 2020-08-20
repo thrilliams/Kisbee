@@ -30,7 +30,7 @@ module.exports = class SetLink extends Command {
         let time = { timeout: 30000 };
         msg.suppressEmbeds();
         msg.guild.settings.set('links.' + args.name.toLowerCase(), args.value);
-        msg.channel.send(new MessageEmbed().addField(args.name, args.value)).delete(time);
+        (await msg.channel.send(new MessageEmbed().addField(args.name, args.value))).delete(time);
         msg.delete(time);
 	}
 }
