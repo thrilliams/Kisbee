@@ -5,7 +5,7 @@ const secret = require('./secret.json');
 
 const client = new Client({
     owner: '294625075934527495', // thrilliams#5489, change if you want
-    commandPrefix: '-'
+    commandPrefix: secret.production ? '!' : '-'
 });
 
 client
