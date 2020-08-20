@@ -1,5 +1,5 @@
 const { Command } = require('discord.js-commando');
-const primeTimeTable = require('../../api/primeTimeTable.js');
+const primetable = require('../../api/primetable.js');
 
 module.exports = class CreateRoles extends Command {
     constructor(client) {
@@ -20,7 +20,7 @@ module.exports = class CreateRoles extends Command {
 
     async run(msg, args) {
         msg.channel.send('Working...');
-        let roles = (await primeTimeTable()).subjects;
+        let roles = (await primetable()).subjects;
         let existingRoles = msg.guild.settings.get('subjectRoles');
         
         let disallowedSubjectNames = ['Lunch', 'Break', 'Community Seminar', 'Community Meeting', 'Independent Study', 'Senior Seminar', 'College Counseling (IL7)', 'Advisory (IL6)'];

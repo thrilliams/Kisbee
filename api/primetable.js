@@ -66,7 +66,7 @@ function addSubjects(students, activities, subjects) {
     });
 }
 
-module.exports = async function primeTimeTable(urls = secret.api_urls) {
+module.exports = async function primetable(urls = secret.api_urls) {
     let responses = await Promise.all(urls.map(url => api({ url: url, method: 'GET' })));
     responses = responses.map(res => res.data);
 
