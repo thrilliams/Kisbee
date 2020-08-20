@@ -9,6 +9,7 @@ module.exports = class SetLink extends Command {
             group: 'misc',
             memberName: 'unsetlink',
             description: 'Remove unhelpful information.',
+            guildOnly: true,
             args: [{
                 key: 'name',
                 type: 'string',

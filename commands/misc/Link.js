@@ -9,6 +9,7 @@ module.exports = class Link extends Command {
             group: 'misc',
             memberName: 'link',
             description: 'Retrieve helpful information on a link. Returns all links when called with no arguments.',
+            guildOnly: true,
             args: [{
                 key: 'name',
                 type: 'string',
