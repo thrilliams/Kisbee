@@ -1,5 +1,5 @@
 const { Command, ArgumentCollector } = require('discord.js-commando');
-const primeTimeTable = require('../../api/primeTimeTable.js');
+const primetable = require('../../api/primetable.js');
 
 module.exports = class GetRoles extends Command {
     constructor(client) {
@@ -16,7 +16,7 @@ module.exports = class GetRoles extends Command {
         msg.channel.send('Fetching student information, please wait...');
         let author = msg.guild.member(msg.author);
         let roles = msg.guild.settings.get('subjectRoles');
-        let students = (await primeTimeTable()).classes;
+        let students = (await primetable()).classes;
 
         let possibleStudents = students.filter(s => {
             let first = s.name.toLowerCase().split(' ')[0];

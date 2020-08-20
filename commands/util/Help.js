@@ -41,7 +41,7 @@ module.exports = class Help extends Command {
 
                 const messages = [];
                 try {
-                    messages.push(await msg.direct(help));
+                    messages.push(await msg.author.send(help));
                     if (msg.channel.type !== 'dm') messages.push(await msg.reply('Sent you a DM with information.'));
                 } catch (err) {
                     messages.push(await msg.reply('Unable to send you the help DM. You probably have DMs disabled.'));
