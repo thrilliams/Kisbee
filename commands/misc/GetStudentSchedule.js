@@ -73,8 +73,8 @@ module.exports = class GetSchedule extends Command {
         dotw = days.find(day => day.name.toLowerCase() === dotw.toLowerCase()).id;
         let schedule = [];
         activities
-            .filter(act => act.groupIds.includes(student.id)) //Array of activities with the student
-            .filter(act => !!act.cards.find(card => card.dayID === dotw)) //Array of today's activities
+            .filter(act => act.groupIds.includes(student.id))
+            .filter(act => !!act.cards.find(card => card.dayID === dotw))
             .map(act => {return {subject: act.subjectId, period: act.cards[0].periodId}})
             .forEach(act => {
                 let time = periods.find(p => p.id === act.period).name.split(" ");
