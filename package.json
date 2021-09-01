@@ -9,8 +9,10 @@
   "dependencies": {
     "@types/node": "^16.7.2",
     "discord-api-types": "^0.20.2",
-    "discord.js": "github:discordjs/discord.js",
+    "discord-fetch-all": "github:thrilliams/discord-fetch-all",
+    "discord.js": "git://github.com/discordjs/discord.js.git#d16ada97087e0324134484c9c0724b52a2839bdf",
     "discordx": "^5.7.0",
+    "mongoose": "^6.0.3",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1"
