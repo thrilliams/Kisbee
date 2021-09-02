@@ -1,18 +1,20 @@
 {
   "name": "kisbee",
   "version": "0.0.0",
-  "main": "index.js",
+  "main": "./src/index.ts",
   "scripts": {
     "start": "./node_modules/ts-node/dist/bin.js src/index.ts"
   },
   "license": "ISC",
   "dependencies": {
     "@types/node": "^16.7.2",
+    "@types/node-fetch": "^2.5.12",
     "discord-api-types": "^0.20.2",
     "discord-fetch-all": "github:thrilliams/discord-fetch-all",
     "discord.js": "git://github.com/discordjs/discord.js.git#d16ada97087e0324134484c9c0724b52a2839bdf",
     "discordx": "^5.7.0",
     "mongoose": "^6.0.3",
+    "node-fetch": "^2.6.1",
     "reflect-metadata": "^0.1.13",
     "ts-node": "^10.2.1",
     "tslib": "^2.3.1"

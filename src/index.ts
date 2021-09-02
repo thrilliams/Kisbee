@@ -1,8 +1,9 @@
 import 'reflect-metadata';
 import { Client } from 'discordx';
 import { Intents } from 'discord.js';
-import { token, mongourl } from '../config.json';
+import { token, mongourl, tableids } from '../config.json';
 import { connect } from 'mongoose';
+import SmartTable from './lib/SmartTable';
 
 async function start() {
     const client = new Client({
@@ -18,7 +19,6 @@ async function start() {
     });
 
     client.once('ready', async () => {
-        await connect(mongourl);
         // await client.clearApplicationCommands('745694138422263928');
         await client.initApplicationCommands({ log: { forGuild: true, forGlobal: false } });
     });
@@ -26,6 +26,9 @@ async function start() {
     client.on('interactionCreate', interaction => {
         client.executeInteraction(interaction);
     });
+
+    await connect(mongourl);
+    await SmartTable.prepareJson(tableids[0]);
 
     await client.login(token);
 }
