@@ -3,7 +3,7 @@ import { Client } from 'discordx';
 import { Intents } from 'discord.js';
 import { token, mongourl, tableids } from '../config.json';
 import { connect } from 'mongoose';
-import SmartTable from './lib/SmartTable';
+import PrimeTimeTable from './lib/PrimeTimeTable';
 
 async function start() {
     const client = new Client({
@@ -28,7 +28,8 @@ async function start() {
     });
 
     await connect(mongourl);
-    await SmartTable.prepareJson(tableids[0]);
+    let table = new PrimeTimeTable(tableids[0]);
+    await table.initialize();
 
     await client.login(token);
 }

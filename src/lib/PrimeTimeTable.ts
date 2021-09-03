@@ -1,4 +1,5 @@
 import Collection from '@discordjs/collection';
+import fetch from 'node-fetch';
 
 // Typings for raw PrimeTimeTable REST API
 export interface Table {
@@ -159,6 +160,8 @@ function arrayToCollection<Type extends { id: string }>(array: Type[]): Collecti
 
 // Handler for internal PrimeTimeTable storage model
 export class PrimeTimeTable {
+    private static instance: PrimeTimeTable;
+
     id: string;
     name: string;
     description: string;
@@ -180,7 +183,23 @@ export class PrimeTimeTable {
     activities: Collection<string, Activity>;
     cardStyles: Collection<string, CardStyle>;
 
-    constructor(json: Table) {
+    constructor(id?: string) {
+        if (PrimeTimeTable.instance) {
+            return PrimeTimeTable.instance;
+        } else {
+            this.id = id;
+            PrimeTimeTable.instance = this;
+        }
+    }
+
+    private getApiUrl(tableId: string) {
+        return `https://primetimetable.com/api/v2/timetables/${tableId}/`;
+    }
+
+    async initialize() {
+        const response = await fetch(this.getApiUrl(this.id));
+        const json: Table = await response.json();
+
         this.id = json.id;
         this.name = json.name;
         this.description = json.description;
@@ -213,7 +232,7 @@ export class PrimeTimeTable {
         this.cardStyles = arrayToCollection<CardStyle>(json.cardStyles);
     }
 
-    expandSubject(subject: Subject | string): Subject {
+    expandSubject(subject: Subject | string, update = true): Subject {
         if (typeof subject === 'string') {
             subject = this.subjects.get(subject);
         }
@@ -235,13 +254,17 @@ export class PrimeTimeTable {
             }
         }
 
-        return {
+        subject = {
             ...subject,
             students: arrayToCollection<Student>(students)
         }
+
+        if (update) this.subjects.set(subject.id, subject);
+
+        return subject;
     }
 
-    expandStudent(student: Student | string): Student {
+    expandStudent(student: Student | string, update = true): Student {
         if (typeof student === 'string') {
             student = this.students.get(student);
         }
@@ -257,10 +280,14 @@ export class PrimeTimeTable {
             }
         }
 
-        return {
+        student = {
             ...student,
             subjects: arrayToCollection<Subject>(subjects)
         }
+
+        if (update) this.students.set(student.id, student);
+
+        return student;
     }
 }
 
