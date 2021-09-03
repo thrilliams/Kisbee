@@ -237,6 +237,8 @@ export class PrimeTimeTable {
             subject = this.subjects.get(subject);
         }
 
+        if (subject.students) return subject;
+
         let students: Student[] = [];
         for (let activity of this.activities.values()) {
             if (activity.subjectId === subject.id && activity.groupIds !== undefined) {
@@ -268,6 +270,8 @@ export class PrimeTimeTable {
         if (typeof student === 'string') {
             student = this.students.get(student);
         }
+
+        if (student.subjects) return student;
 
         let subjects: Subject[] = [];
         for (let groupSet of student.groupSets.values()) {
