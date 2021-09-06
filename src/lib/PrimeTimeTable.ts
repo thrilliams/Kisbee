@@ -159,6 +159,13 @@ function arrayToCollection<Type extends { id: string }>(array: Type[]): Collecti
 }
 
 // Handler for internal PrimeTimeTable storage model
+
+interface SubjectGroup {
+    name: string,
+    ids: string[],
+    students: Collection<string, Student>
+}
+
 export class PrimeTimeTable {
     private static instance: PrimeTimeTable;
 
@@ -292,6 +299,40 @@ export class PrimeTimeTable {
         if (update) this.students.set(student.id, student);
 
         return student;
+    }
+
+    groupSections() {
+        let groups: SubjectGroup[] = [];
+
+        for (let subject of this.subjects.values()) {
+            let name = /^[^()]*/gm.exec(subject.name)[0].trim();
+
+            let noMatch = true;
+
+            for (let group of groups) {
+                if (group.name === name) {
+                    group.ids.push(subject.id);
+                    group.students.concat(this.expandSubject(subject).students);
+                    noMatch = false;
+                }
+            }
+
+            if (noMatch) {
+                groups.push({
+                    name: name,
+                    ids: [subject.id],
+                    students: this.expandSubject(subject).students
+                });
+            }
+        }
+
+        return groups;
+    }
+
+    filterSections(min = 3, max = 65) {
+        let groups = this.groupSections();
+        groups = groups.filter(group => min < group.students.size && group.students.size < max);
+        return groups;
     }
 }
 
