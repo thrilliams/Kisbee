@@ -1,0 +1,16 @@
+{
+    "compilerOptions": {
+        "resolveJsonModule": true,
+        "noImplicitAny": true,
+        "emitDecoratorMetadata": true,
+        "experimentalDecorators": true,
+        "forceConsistentCasingInFileNames": true,
+        "sourceMap": true,
+        "lib": [
+            "es2017",
+            "esnext.asynciterable"
+        ],
+        "target": "ES6",
+        "moduleResolution": "node"
+    }
+}
