@@ -11,10 +11,8 @@ export const IsGuild: GuardFunction<CommandInteraction> =
 export function HasPermission(permission: PermissionResolvable) {
     const guard: GuardFunction<CommandInteraction> =
         async (interaction, client, next) => {
-            if (interaction.member instanceof GuildMember) {
-                if (interaction.member.permissions.has(permission)) {
-                    await next();
-                }
+            if ((interaction.member as GuildMember).permissions.has(permission)) {
+                await next();
             }
         }
 
