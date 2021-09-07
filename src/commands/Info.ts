@@ -1,6 +1,7 @@
-import { Discord, Permission, Slash, SlashGroup, SlashOption } from 'discordx';
+import { Discord, Guard, Slash, SlashGroup, SlashOption } from 'discordx';
 import { CommandInteraction, MessageEmbed } from 'discord.js';
 import { Document, model, Schema } from 'mongoose';
+import { HasPermission } from './Guards';
 
 const infoSchema = new Schema({
     name: String,
@@ -37,7 +38,7 @@ abstract class Info {
         }
     }
 
-    @Permission({ id: '294625075934527495', type: 'USER', permission: true })
+    @Guard(HasPermission('MANAGE_CHANNELS'))
     @Slash('set', { description: 'Set helpful information.', defaultPermission: false })
     async set(
         @SlashOption('name', { description: 'The name of an item to set.', required: true }) name: string,

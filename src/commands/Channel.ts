@@ -1,15 +1,15 @@
-import { Discord, Guard, Permission, Slash, SlashGroup, SlashOption } from 'discordx';
+import { Discord, Guard, Slash, SlashGroup, SlashOption } from 'discordx';
 import { TextChannel, CommandInteraction, MessageAttachment, Collection } from 'discord.js';
 import { messages as fetchMessages } from 'discord-fetch-all';
 import PrimeTimeTable from '../lib/PrimeTimeTable';
 import { MessageEmbed } from 'discordx/node_modules/discord.js';
-import { IsGuild } from './IsGuild';
+import { HasPermission, IsGuild } from './Guards';
 
 @Discord()
 @Guard(IsGuild)
 @SlashGroup('channel', 'Commands for manipulating subject channels.')
 abstract class Channel {
-    @Permission({ id: '294625075934527495', type: 'USER', permission: true })
+    @Guard(HasPermission('MANAGE_CHANNELS'))
     @Slash('archive', { description: 'Archive a channel into a text file.', defaultPermission: false })
     async archive(
         @SlashOption('forcedelete', { description: 'Delete the channel after archiving it.' }) forcedelete: boolean,
@@ -42,7 +42,7 @@ abstract class Channel {
         }
     }
 
-    @Permission({ id: '294625075934527495', type: 'USER', permission: true })
+    @Guard(HasPermission('MANAGE_CHANNELS'))
     @Slash('verify', { description: 'Ensures channels exist for each applicable subject.', defaultPermission: false })
     async verify(
         @SlashOption('min', { description: 'Minimum students in a class for it be considered.' }) min: number,
