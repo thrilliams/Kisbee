@@ -6,7 +6,7 @@ import { CommandInteraction } from 'discord.js';
 abstract class Utility {
     @Slash('invite', { description: 'Bring Kisbee to a new server.' })
     invite(interaction: CommandInteraction) {
-        interaction.reply(`https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user.id}&permissions=8&scope=applications.commands%20bot`);
+        interaction.reply(`https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user!.id}&permissions=8&scope=applications.commands%20bot`);
     }
 
     @Slash('remind', { description: 'Set a reminder.' })

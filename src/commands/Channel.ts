@@ -1,10 +1,12 @@
-import { Discord, Permission, Slash, SlashGroup, SlashOption } from 'discordx';
+import { Discord, Guard, Permission, Slash, SlashGroup, SlashOption } from 'discordx';
 import { TextChannel, CommandInteraction, MessageAttachment, Collection } from 'discord.js';
 import { messages as fetchMessages } from 'discord-fetch-all';
 import PrimeTimeTable from '../lib/PrimeTimeTable';
 import { MessageEmbed } from 'discordx/node_modules/discord.js';
+import { IsGuild } from './IsGuild';
 
 @Discord()
+@Guard(IsGuild)
 @SlashGroup('channel', 'Commands for manipulating subject channels.')
 abstract class Channel {
     @Permission({ id: '294625075934527495', type: 'USER', permission: true })
@@ -57,7 +59,7 @@ abstract class Channel {
         let table = new PrimeTimeTable();
         let groups = table.filterSections(min, max);
 
-        let channelStatuses: Collection<string, TextChannel> = new Collection();
+        let channelStatuses: Collection<string, TextChannel | undefined> = new Collection();
         groups.forEach(group => {
             let pattern = /(\w+)/g;
             let result = pattern.exec(group.name);
@@ -71,7 +73,7 @@ abstract class Channel {
             channelStatuses.set(string.slice(1), undefined);
         });
 
-        let channels = await interaction.guild.channels.fetch();
+        let channels = await interaction.guild!.channels.fetch();
         channels = channels.filter(channel => channel.type === "GUILD_TEXT");
 
         for (let name of channelStatuses.keys()) {
@@ -83,7 +85,7 @@ abstract class Channel {
         }
 
         let totalFound = channelStatuses.reduce((total, channel) => total += channel !== undefined ? 1 : 0, 0);
-        embed.fields.find(field => field.name === 'Channel names:').value = `${totalFound}/${channelStatuses.size} found.`;
+        embed.fields.find(field => field.name === 'Channel names:')!.value = `${totalFound}/${channelStatuses.size} found.`;
         if (totalFound < channelStatuses.size) {
             embed.addField('⚠️ Missing channels:', [...channelStatuses.filter(channel => channel === undefined).keys()].map(name => `#${name}`).join('\n'));
             success = false;
@@ -93,13 +95,13 @@ abstract class Channel {
 
         function checkPerms(channel: TextChannel) {
             // TODO: Correct permission check
-            return channel.permissionsFor(interaction.guildId).has('SEND_MESSAGES');
+            return channel.permissionsFor(interaction.guildId!)!.has('SEND_MESSAGES');
         }
 
-        let totalCorrect = channelStatuses.reduce((total, channel) => total += checkPerms(channel) ? 1 : 0, 0);
-        embed.fields.find(field => field.name === 'Channel permissions:').value = `${totalCorrect}/${channelStatuses.size} correct.`;
+        let totalCorrect = channelStatuses.reduce((total, channel) => total += checkPerms(channel!) ? 1 : 0, 0);
+        embed.fields.find(field => field.name === 'Channel permissions:')!.value = `${totalCorrect}/${channelStatuses.size} correct.`;
         if (totalFound < channelStatuses.size) {
-            embed.addField('⚠️ Incorrect permissions:', [...channelStatuses.filter(channel => !checkPerms(channel)).keys()].map(name => `#${name}`).join('\n'));
+            embed.addField('⚠️ Incorrect permissions:', [...channelStatuses.filter(channel => !checkPerms(channel!)).keys()].map(name => `#${name}`).join('\n'));
             success = false;
         }
         embed.setTitle(success ? 'Subject channels successfully verified.' : '⚠️ Subject channel verification failed! Please adress issues below.');
