@@ -97,7 +97,8 @@ export abstract class Roles {
             for (let [name, group] of roleMap) {
                 if (group.role === undefined) {
                     let newRole = await interaction.guild!.roles.create({
-                        name: name
+                        name: name,
+                        mentionable: true
                     });
                     roleMap.set(name, { ...group, role: newRole });
                 }
