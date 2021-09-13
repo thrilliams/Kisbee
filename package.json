@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "main": "./src/index.ts",
   "scripts": {
-    "start": "./node_modules/ts-node/dist/bin.js src/index.ts"
+    "start": "./node_modules/.bin/ts-node src/index.ts"
   },
   "license": "ISC",
   "dependencies": {

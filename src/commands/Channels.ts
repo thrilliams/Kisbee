@@ -219,7 +219,7 @@ abstract class Channels {
             output += `${message.author.tag}: ${message.content}\n`;
         });
 
-        const attachment = new MessageAttachment(Buffer.from(output, 'utf8'), 'archive.txt');
+        const attachment = new MessageAttachment(Buffer.from(output, 'utf8'), channel.name + '.txt');
 
         if (forcedelete === true) {
             const name = channel.name;
