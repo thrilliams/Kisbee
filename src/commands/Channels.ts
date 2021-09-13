@@ -1,14 +1,203 @@
 import { Discord, Guard, Slash, SlashGroup, SlashOption } from 'discordx';
 import { TextChannel, CommandInteraction, MessageAttachment, Collection, Guild } from 'discord.js';
 import { messages as fetchMessages } from 'discord-fetch-all';
-import PrimeTimeTable from '../lib/PrimeTimeTable';
+import PrimeTimeTable, { SubjectGroup } from '../lib/PrimeTimeTable';
 import { MessageEmbed } from 'discordx/node_modules/discord.js';
 import { HasPermission, IsGuild } from './Guards';
+import { Roles } from './Roles';
+
+type ChannelMap = Collection<string, SubjectGroup & { cleanedName: string, channel?: TextChannel }>;
 
 @Discord()
 @Guard(IsGuild)
-@SlashGroup('channel', 'Commands for manipulating subject channels.')
+@SlashGroup('channels', 'Commands for manipulating subject channels.')
 abstract class Channels {
+    static initChannelMap(
+        min?: number, max?: number
+    ): ChannelMap {
+        let table = new PrimeTimeTable();
+        let groups = table.filterSections(min, max);
+
+        let channelMap: ChannelMap = new Collection();
+        for (let group of groups) {
+            let pattern = /(\w+)/g;
+            let result = pattern.exec(group.name);
+            let string = '';
+
+            while (result !== null) {
+                string += `-${result[0].toLowerCase()}`;
+                result = pattern.exec(group.name);
+            }
+
+            channelMap.set(group.name, { ...group, cleanedName: string.slice(1) });
+        }
+
+        return channelMap;
+    }
+
+    static async fillChannelMap(guild: Guild, channelMap: ChannelMap) {
+        let channels = await guild.channels.fetch();
+
+        for (let [name, group] of channelMap) {
+            // TODO: Fuzzy name search
+            let channel = channels.find(channel => channel.name === group.cleanedName);
+            if (channel !== undefined && channel.type === 'GUILD_TEXT') {
+                channelMap.set(name, { ...group, channel: channel });
+            }
+        }
+    }
+
+    static async getChannelMap(guild: Guild) {
+        let channelMap = this.initChannelMap();
+        await this.fillChannelMap(guild, channelMap);
+        return channelMap as ChannelMap;
+    }
+
+    @Guard(HasPermission('MANAGE_CHANNELS'))
+    @Slash('verify', { description: 'Verfies the existance of channels for each applicable subject.', defaultPermission: false })
+    async verify(
+        @SlashOption('verbose', { description: 'Display additional information.' }) verbose: boolean,
+        interaction: CommandInteraction
+    ) {
+        let embed = new MessageEmbed();
+        let success = true;
+        embed.setTitle('Verifying channels, please wait...')
+            .addField('Channel names:', '...')
+            .addField('Channel permissions:', '...');
+        await interaction.reply({ embeds: [embed] });
+
+        let channelMap = Channels.initChannelMap();
+        await Channels.fillChannelMap(interaction.guild!, channelMap);
+
+        let totalFound = channelMap.reduce((total, group) => total += group.channel !== undefined ? 1 : 0, 0);
+        embed.fields.find(field => field.name === 'Channel names:')!.value = `${totalFound}/${channelMap.size} found${verbose ? `:\n${channelMap.filter(group => group.channel !== undefined).map(group => `#${group.cleanedName}`).join('\n')}` : '.'}`;
+        if (totalFound < channelMap.size) {
+            embed.addField('⚠️ Missing channels:', channelMap.filter(group => group.channel === undefined).map(group => `#${group.cleanedName}`).join('\n'));
+            success = false;
+        }
+        await interaction.editReply({ embeds: [embed] });
+
+        let roleMap = Roles.initRoleMap();
+        await Roles.fillRoleMap(interaction.guild!, roleMap);
+        let validChannelMap = channelMap.filter(group => {
+            if (group.channel !== undefined) {
+                let roleGroup = roleMap.get(group.name);
+                if (roleGroup !== undefined && roleGroup.role !== undefined) {
+                    return (
+                        !group.channel.permissionsFor(interaction.guild!.roles.everyone).has('VIEW_CHANNEL')
+                        && group.channel.permissionsFor(roleGroup.role.id)!.has('SEND_MESSAGES')
+                    );
+                }
+            }
+            return false;
+        });
+
+        embed.fields.find(field => field.name === 'Channel permissions:')!.value = `${validChannelMap.size}/${totalFound} correct${verbose ? `:\n${validChannelMap.map(group => `#${group.cleanedName}`).join('\n')}` : '.'}`;
+        if (validChannelMap.size < totalFound) {
+            embed.addField('⚠️ Incorrect permissions:', channelMap.filter(group => {
+                if (group.channel !== undefined) {
+                    return !(group.name in validChannelMap);
+                }
+                return false;
+            }).map(group => `#${group.cleanedName}`).join('\n'));
+            success = false;
+        }
+        embed.setTitle(success ? '✅ Subject channels successfully verified.' : '⚠️ Subject channel verification failed! Please adress issues below.');
+        await interaction.editReply({ embeds: [embed] });
+    }
+
+    @Guard(HasPermission('MANAGE_CHANNELS'))
+    @Slash('create', { description: 'Creates channels as needed for each applicable subject.', defaultPermission: false })
+    async create(
+        interaction: CommandInteraction
+    ) {
+        let embed = new MessageEmbed();
+        embed.setTitle('Creating channels, please wait...')
+            .addField('Channel names:', '...')
+            .addField('Channel permissions:', '...');
+        await interaction.reply({ embeds: [embed] });
+
+        let channelMap = Channels.initChannelMap();
+        await Channels.fillChannelMap(interaction.guild!, channelMap);
+
+        let roleMap = Roles.initRoleMap();
+        await Roles.fillRoleMap(interaction.guild!, roleMap);
+
+        let totalFound = channelMap.reduce((total, group) => total += group.channel !== undefined ? 1 : 0, 0);
+        embed.fields.find(field => field.name === 'Channel names:')!.value = `${totalFound}/${channelMap.size} found.`;
+        if (totalFound < channelMap.size) {
+            embed.addField('Creating channels:', channelMap.filter(group => group.channel === undefined).map(group => `#${group.cleanedName}`).join('\n'));
+            await interaction.editReply({ embeds: [embed] });
+            for (let [name, group] of channelMap) {
+                let roleGroup = roleMap.get(group.name);
+                let channel: TextChannel;
+                if (roleGroup !== undefined && roleGroup.role !== undefined) {
+                    channel = await interaction.guild!.channels.create(group.cleanedName, {
+                        permissionOverwrites: [{
+                            id: interaction.guild!.roles.everyone,
+                            deny: ['VIEW_CHANNEL']
+                        },
+                        {
+                            id: roleGroup.role.id,
+                            allow: ['VIEW_CHANNEL']
+                        }]
+                    });
+                } else {
+                    channel = await interaction.guild!.channels.create(group.cleanedName, {
+                        permissionOverwrites: [{
+                            id: interaction.guild!.roles.everyone,
+                            deny: ['VIEW_CHANNEL']
+                        }]
+                    });
+                }
+
+                channelMap.set(name, { ...group, channel: channel });
+            }
+        }
+
+        let validChannelMap = channelMap.filter(group => {
+            if (group.channel !== undefined) {
+                let roleGroup = roleMap.get(group.name);
+                if (roleGroup !== undefined && roleGroup.role !== undefined) {
+                    return (
+                        !group.channel.permissionsFor(interaction.guild!.roles.everyone).has('VIEW_CHANNEL')
+                        && group.channel.permissionsFor(roleGroup.role.id)!.has('SEND_MESSAGES')
+                    );
+                }
+            }
+            return false;
+        });
+
+        embed.fields.find(field => field.name === 'Channel permissions:')!.value = `${validChannelMap.size}/${channelMap.size} correct.`;
+        if (validChannelMap.size < channelMap.size) {
+            let invalidChannelMap = channelMap.filter(group => {
+                if (group.channel !== undefined) {
+                    return !(group.name in validChannelMap);
+                }
+                return false;
+            });
+            embed.addField('Updating channel permissions:', invalidChannelMap.map(group => `#${group.cleanedName}`).join('\n'));
+            await interaction.editReply({ embeds: [embed] });
+            for (let group of invalidChannelMap.values()) {
+                let roleGroup = roleMap.get(group.name);
+                if (roleGroup !== undefined && roleGroup.role !== undefined) {
+                    await group.channel!.permissionOverwrites.set([
+                        {
+                            id: interaction.guild!.roles.everyone,
+                            deny: ['VIEW_CHANNEL']
+                        },
+                        {
+                            id: roleGroup.role.id,
+                            allow: ['VIEW_CHANNEL']
+                        }
+                    ]);
+                }
+            }
+        }
+        embed.setTitle('✅ Subject channels successfully created.');
+        await interaction.editReply({ embeds: [embed] });
+    }
+
     @Guard(HasPermission('MANAGE_CHANNELS'))
     @Slash('archive', { description: 'Archive a channel into a text file.', defaultPermission: false })
     async archive(
@@ -42,90 +231,24 @@ abstract class Channels {
         }
     }
 
-    static initChannelMap(min?: number, max?: number): Collection<string, TextChannel | undefined> {
-        let table = new PrimeTimeTable();
-        let groups = table.filterSections(min, max);
-
-        let channelMap: Collection<string, TextChannel | undefined> = new Collection();
-        for (let group of groups) {
-            let pattern = /(\w+)/g;
-            let result = pattern.exec(group.name);
-            let string = '';
-
-            while (result !== null) {
-                string += `-${result[0].toLowerCase()}`;
-                result = pattern.exec(group.name);
-            }
-
-            channelMap.set(string.slice(1), undefined);
-        }
-
-        return channelMap;
-    }
-
-    static async fillChannelMap(guild: Guild, channelMap: Collection<string, TextChannel | undefined>) {
-        let channels = await guild.channels.fetch();
-
-        for (let name of channelMap.keys()) {
-            // TODO: Fuzzy name search
-            let channel = channels.find(channel => channel.name === name);
-            if (channel !== undefined && channel.type === 'GUILD_TEXT') {
-                channelMap.set(name, channel);
-            }
-        }
-    }
-
-    static filterChannelMap(guild: Guild, channelMap: Collection<string, TextChannel>,
-        filter: (channel: TextChannel) => boolean) {
-        return channelMap.filter(filter);
-    }
-
-    static async getChannelMap(guild: Guild, prune = false) {
-        let channelMap = this.initChannelMap();
-        await this.fillChannelMap(guild, channelMap);
-        if (prune) channelMap = channelMap.filter(channel => channel !== undefined);
-        return channelMap as Collection<string, TextChannel>;
-    }
-
     @Guard(HasPermission('MANAGE_CHANNELS'))
-    @Slash('verify', { description: 'Ensures channels exist for each applicable subject.', defaultPermission: false })
-    async verify(
-        @SlashOption('min', { description: 'Minimum students in a class for it be considered.' }) min: number,
-        @SlashOption('max', { description: 'Maximum students in a class for it be considered.' }) max: number,
+    @Slash('delete', { description: 'Deletes existing channels for each applicable subject.', defaultPermission: false })
+    async delete(
         interaction: CommandInteraction
     ) {
         let embed = new MessageEmbed();
-        let success = true;
-        embed.setTitle('Verifying channels, please wait...')
-            .addField('Channel names:', '...')
-            .addField('Channel permissions:', '...');
+        embed.setTitle('Deleting channels, please wait...')
         await interaction.reply({ embeds: [embed] });
 
-        let channelMap = Channels.initChannelMap(min, max);
+        let channelMap = Channels.initChannelMap();
         await Channels.fillChannelMap(interaction.guild!, channelMap);
-
-        let totalFound = channelMap.reduce((total, channel) => total += channel !== undefined ? 1 : 0, 0);
-        embed.fields.find(field => field.name === 'Channel names:')!.value = `${totalFound}/${channelMap.size} found.`;
-        if (totalFound < channelMap.size) {
-            embed.addField('⚠️ Missing channels:', [...channelMap.filter(channel => channel === undefined).keys()].map(name => `#${name}`).join('\n'));
-            success = false;
+        for (let group of channelMap.values()) {
+            if (group.channel !== undefined) {
+                await group.channel.delete();
+            }
         }
-        await interaction.editReply({ embeds: [embed] });
 
-        let fullChannelMap = channelMap.filter(channel => channel !== undefined) as Collection<string, TextChannel>;
-        const filter = (channel: TextChannel) => {
-            // TODO: Correct permission check
-            return channel.permissionsFor(interaction.guild!.id)!.has('SEND_MESSAGES');
-        }
-        fullChannelMap = Channels.filterChannelMap(interaction.guild!, fullChannelMap, filter);
-
-        let totalCorrect = fullChannelMap.reduce((total, channel) => total += filter(channel) ? 1 : 0, 0);
-        embed.fields.find(field => field.name === 'Channel permissions:')!.value = `${totalCorrect}/${fullChannelMap.size} correct.`;
-        if (totalCorrect < fullChannelMap.size) {
-            embed.addField('⚠️ Incorrect permissions:', [...fullChannelMap.filter(channel => !filter(channel)).keys()].map(name => `#${name}`).join('\n'));
-            success = false;
-        }
-        embed.setTitle(success ? 'Subject channels successfully verified.' : '⚠️ Subject channel verification failed! Please adress issues below.');
+        embed.setTitle('✅ Subject channels successfully deleted.');
         await interaction.editReply({ embeds: [embed] });
     }
 }
