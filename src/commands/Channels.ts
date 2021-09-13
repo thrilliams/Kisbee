@@ -177,22 +177,20 @@ abstract class Channels {
             await interaction.editReply({ embeds: [embed] });
             for (let group of invalidChannelMap.values()) {
                 let roleGroup = roleMap.get(group.name);
-                if (roleGroup !== undefined && roleGroup.role !== undefined) {
-                    await group.channel!.permissionOverwrites.set([
-                        {
-                            id: interaction.guild!.roles.everyone,
-                            deny: ['VIEW_CHANNEL']
-                        },
-                        {
-                            id: interaction.guild!.roles.cache.find(role => role.name === 'Helper')!.id,
-                            allow: ['VIEW_CHANNEL']
-                        },
-                        {
-                            id: roleGroup.role.id,
-                            allow: ['VIEW_CHANNEL']
-                        }
-                    ]);
-                }
+                await group.channel!.permissionOverwrites.set([
+                    {
+                        id: interaction.guild!.roles.everyone,
+                        deny: ['VIEW_CHANNEL']
+                    },
+                    {
+                        id: interaction.guild!.roles.cache.find(role => role.name === 'Helper')!.id,
+                        allow: ['VIEW_CHANNEL']
+                    },
+                    {
+                        id: roleGroup!.role!.id,
+                        allow: ['VIEW_CHANNEL']
+                    }
+                ]);
             }
         }
         embed.setTitle('✅ Subject channels successfully created.');
