@@ -19,7 +19,6 @@ async function start() {
     });
 
     client.once('ready', async () => {
-        // await client.clearApplicationCommands('745694138422263928');
         await client.initApplicationCommands({ log: { forGuild: true, forGlobal: false } });
     });
 
@@ -35,5 +34,3 @@ async function start() {
 }
 
 start();
-
-// TODO: Change all calls of @Permission to reference Helper and Moderator rather than my user ID.
