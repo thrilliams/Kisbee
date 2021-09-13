@@ -85,7 +85,8 @@ abstract class Channels {
                 if (roleGroup !== undefined && roleGroup.role !== undefined) {
                     return (
                         !group.channel.permissionsFor(interaction.guild!.roles.everyone).has('VIEW_CHANNEL')
-                        && group.channel.permissionsFor(roleGroup.role.id)!.has('SEND_MESSAGES')
+                        && group.channel.permissionsFor(interaction.guild!.roles.cache.find(role => role.name === 'Helper')!).has('VIEW_CHANNEL')
+                        && group.channel.permissionsFor(roleGroup.role.id)!.has('VIEW_CHANNEL')
                     );
                 }
             }
@@ -131,25 +132,20 @@ abstract class Channels {
             for (let [name, group] of channelMap) {
                 let roleGroup = roleMap.get(group.name);
                 let channel: TextChannel;
-                if (roleGroup !== undefined && roleGroup.role !== undefined) {
-                    channel = await interaction.guild!.channels.create(group.cleanedName, {
-                        permissionOverwrites: [{
-                            id: interaction.guild!.roles.everyone,
-                            deny: ['VIEW_CHANNEL']
-                        },
-                        {
-                            id: roleGroup.role.id,
-                            allow: ['VIEW_CHANNEL']
-                        }]
-                    });
-                } else {
-                    channel = await interaction.guild!.channels.create(group.cleanedName, {
-                        permissionOverwrites: [{
-                            id: interaction.guild!.roles.everyone,
-                            deny: ['VIEW_CHANNEL']
-                        }]
-                    });
-                }
+                channel = await interaction.guild!.channels.create(group.cleanedName, {
+                    permissionOverwrites: [{
+                        id: interaction.guild!.roles.everyone,
+                        deny: ['VIEW_CHANNEL']
+                    },
+                    {
+                        id: interaction.guild!.roles.cache.find(role => role.name === 'Helper')!.id,
+                        allow: ['VIEW_CHANNEL']
+                    },
+                    {
+                        id: roleGroup!.role!.id,
+                        allow: ['VIEW_CHANNEL']
+                    }]
+                });
 
                 channelMap.set(name, { ...group, channel: channel });
             }
@@ -161,6 +157,7 @@ abstract class Channels {
                 if (roleGroup !== undefined && roleGroup.role !== undefined) {
                     return (
                         !group.channel.permissionsFor(interaction.guild!.roles.everyone).has('VIEW_CHANNEL')
+                        && group.channel.permissionsFor(interaction.guild!.roles.cache.find(role => role.name === 'Helper')!).has('VIEW_CHANNEL')
                         && group.channel.permissionsFor(roleGroup.role.id)!.has('SEND_MESSAGES')
                     );
                 }
@@ -185,6 +182,10 @@ abstract class Channels {
                         {
                             id: interaction.guild!.roles.everyone,
                             deny: ['VIEW_CHANNEL']
+                        },
+                        {
+                            id: interaction.guild!.roles.cache.find(role => role.name === 'Helper')!.id,
+                            allow: ['VIEW_CHANNEL']
                         },
                         {
                             id: roleGroup.role.id,
