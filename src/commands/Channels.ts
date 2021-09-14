@@ -130,24 +130,26 @@ abstract class Channels {
             embed.addField('Creating channels:', channelMap.filter(group => group.channel === undefined).map(group => `#${group.cleanedName}`).join('\n'));
             await interaction.editReply({ embeds: [embed] });
             for (let [name, group] of channelMap) {
-                let roleGroup = roleMap.get(group.name);
-                let channel: TextChannel;
-                channel = await interaction.guild!.channels.create(group.cleanedName, {
-                    permissionOverwrites: [{
-                        id: interaction.guild!.roles.everyone,
-                        deny: ['VIEW_CHANNEL']
-                    },
-                    {
-                        id: interaction.guild!.roles.cache.find(role => role.name === 'Helper')!.id,
-                        allow: ['VIEW_CHANNEL']
-                    },
-                    {
-                        id: roleGroup!.role!.id,
-                        allow: ['VIEW_CHANNEL']
-                    }]
-                });
+                if (group.channel === undefined) {
+                    let roleGroup = roleMap.get(group.name);
+                    let channel: TextChannel;
+                    channel = await interaction.guild!.channels.create(group.cleanedName, {
+                        permissionOverwrites: [{
+                            id: interaction.guild!.roles.everyone,
+                            deny: ['VIEW_CHANNEL']
+                        },
+                        {
+                            id: interaction.guild!.roles.cache.find(role => role.name === 'Helper')!.id,
+                            allow: ['VIEW_CHANNEL']
+                        },
+                        {
+                            id: roleGroup!.role!.id,
+                            allow: ['VIEW_CHANNEL']
+                        }]
+                    });
 
-                channelMap.set(name, { ...group, channel: channel });
+                    channelMap.set(name, { ...group, channel: channel });
+                }
             }
         }
 
@@ -158,7 +160,7 @@ abstract class Channels {
                     return (
                         !group.channel.permissionsFor(interaction.guild!.roles.everyone).has('VIEW_CHANNEL')
                         && group.channel.permissionsFor(interaction.guild!.roles.cache.find(role => role.name === 'Helper')!).has('VIEW_CHANNEL')
-                        && group.channel.permissionsFor(roleGroup.role.id)!.has('SEND_MESSAGES')
+                        && group.channel.permissionsFor(roleGroup.role.id)!.has('VIEW_CHANNEL')
                     );
                 }
             }
