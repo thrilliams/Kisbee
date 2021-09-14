@@ -177,8 +177,8 @@ abstract class Channels {
             });
             embed.addField('Updating channel permissions:', invalidChannelMap.map(group => `#${group.cleanedName}`).join('\n'));
             await interaction.editReply({ embeds: [embed] });
-            for (let group of invalidChannelMap.values()) {
-                let roleGroup = roleMap.get(group.name);
+            for (let [name, group] of invalidChannelMap) {
+                let roleGroup = roleMap.get(name);
                 await group.channel!.permissionOverwrites.set([
                     {
                         id: interaction.guild!.roles.everyone,

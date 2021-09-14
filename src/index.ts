@@ -15,7 +15,7 @@ async function start() {
             `${__dirname}/commands/*.ts`
         ],
         silent: true,
-        botGuilds: ['644736412138340362', '745694138422263928']
+        botGuilds: ['745694138422263928', '644736412138340362']
     });
 
     client.once('ready', async () => {
